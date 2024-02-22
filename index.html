@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <style>
+      input[type="password"] {
+        padding-right: 30px; /* Provide space for the eye icon */
+      }
+      .eye-icon {
+        position: absolute;
+        right: 300px;
+        top: 50rem;
+        transform: translateY(20px);
+        cursor: pointer;
+      }
+    </style>
+    <h1 class="text-center">Welcome to firebase</h1>
+
+    <div
+      class="col-7 mx-auto border p-3 bg-info bg-opacity-25 shawdom-sm mt-3 rounded"
+    >
+      <h1 class="text-center">Create Account</h1>
+      <hr />
+      <div id="message"></div>
+      <label for="" class="form-label">First Name</label>
+      <input
+        id="firstName"
+        type="text"
+        class="form-control mb-3"
+        placeholder="First name"
+      />
+      <label for="" class="form-label">Last Name</label>
+      <input
+        id="lastName"
+        type="text"
+        class="form-control mb-3"
+        placeholder="Last name"
+      />
+      <label for="" class="form-label">Age</label>
+      <input
+        id="age"
+        type="text"
+        class="form-control mb-3"
+        placeholder="Age"
+      />
+      <label for="" class="form-label">Gender</label>
+      <input
+        id="gender"
+        type="text"
+        class="form-control mb-3"
+        placeholder="Gender"
+      />
+
+      <label for="" class="form-label">Email</label>
+      <input
+        id="email"
+        type="email"
+        class="form-control mb-3"
+        placeholder="Email"
+      />
+      <label for="" class="form-label">Password</label>
+      <input
+        id="password"
+        type="password"
+        class="form-control mb-3"
+        placeholder="Password"
+      />
+      <div class="mx-auto col-8">
+        <button
+          onclick="saveData()"
+          class="btn btn-info mt-2 text-light fw-bold"
+        >
+          Save Data
+        </button>
+        <!-- <button
+        onclick="createAccount()"
+        class="btn btn-info mt-2 text-light fw-bold"
+      >
+        CREATE ACCOUNT
+      </button> -->
+        <button
+          onclick="signInWithGoogle()"
+          class="btn btn-outline-danger mt-2 fw-bold"
+        >
+          GOOGLE SIGN-IN
+        </button>
+      </div>
+    </div>
+    <hr class="col-7 mx-auto my-3" />
+    <div
+      class="col-7 mx-auto border p-3 bg-info bg-opacity-25 shawdom-sm my-3 rounded"
+    >
+      <h1 class="text-center">Sign In</h1>
+      <hr />
+      <div id="signInMessage"></div>
+      <label for="" class="form-label fw-bold">Email</label>
+      <input
+        id="signInEmail"
+        type="email"
+        class="form-control mb-3"
+        placeholder="Email"
+      />
+      <label for="" class="form-label fw-bold">Password</label>
+      <input
+        id="signInPassword"
+        type="password"
+        class="form-control mb-3"
+        placeholder="Password"
+      /><span class="eye-icon" onclick="togglePasswordVisibility()">👁️</span>
+      <div class="col-8 mx-auto">
+        <button
+          onclick="signInAccount()"
+          class="btn btn-warning mt-2 fw-bold form-control"
+        >
+          Sign In
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        set,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAFtGmxMaB3tLzBLUv2ft0rKpynsM96sAQ",
+        authDomain: "new-project-february.firebaseapp.com",
+        projectId: "new-project-february",
+        storageBucket: "new-project-february.appspot.com",
+        messagingSenderId: "306060645086",
+        appId: "1:306060645086:web:0214f7b8bed09feaa6684f",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      const database = getDatabase(app);
+      let index;
+      let userRef = ref(database, "userData")
+      onValue(userRef, (snapshot)=>{
+        console.log("On value run when there is change in the database")
+        let data = snapshot.val()
+        console.log(data)
+        if(data){
+          index = data.length
+        }else{
+          index =0
+        }
+      })
+
+      // console.log("I ran");
+
+      // function createAccount() {
+      //   console.log("I have been clicked");
+      // } // This won't work directly in type module
+
+      window.createAccount = () => {
+        console.log("I have been clicked");
+      };
+
+      window.createAccount = async () => {
+        try {
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          console.log(userCredential);
+        } catch (err) {
+          document.getElementById("message").innerHTML = `
+          <div class="alert alert-warning" id="message">${err.message}</div>`;
+          console.log(err.message);
+        }
+      };
+
+      window.signInAccount = async () => {
+        try {
+          const email = document.getElementById("signInEmail").value;
+          const password = document.getElementById("signInPassword").value;
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          console.log(userCredential);
+        } catch (err) {
+          document.getElementById("signInMessage").innerHTML = `
+          <div class="alert alert-danger" id="message">${err.message}</div>`;
+          console.log(err.message);
+        }
+      };
+
+      window.signInWithGoogle = async () => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          console.log(result);
+        } catch (err) {
+          console.log(err.message);
+        }
+      };
+
+      window.togglePasswordVisibility = () => {
+        const passwordInput = document.getElementById("signInPassword");
+        const eyeIcon = document.querySelector(".eye-icon");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          eyeIcon.textContent = "🚚";
+        } else {
+          passwordInput.type = "password";
+          eyeIcon.textContent = "👁️";
+        }
+      };
+
+      window.saveData = async () => {
+        let firstName = document.getElementById("firstName").value;
+        let lastName = document.getElementById("lastName").value;
+        let email = document.getElementById("email").value;
+        let age = document.getElementById("age").value;
+        let gender = document.getElementById("gender").value;
+        let userObject = { firstName, lastName, email, age, gender };
+        console.log(userObject);
+        let reference = ref(database, "userData/" + index);
+        set(reference, userObject);
+      };
+    </script>
+  </body>
+</html>
