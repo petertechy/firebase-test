@@ -18,10 +18,65 @@
       }
       .eye-icon {
         position: absolute;
-        right: 300px;
-        top: 50rem;
-        transform: translateY(20px);
+        right: 19em;
+        transform: translateY(-47px);
+        /* transform: translateX(5px); */
         cursor: pointer;
+      }
+      .forget{
+        cursor: pointer;
+        text-decoration: underline;
+        color: blue;
+        font-size: 18px;
+        font-family: cursive;
+        margin-left: 5px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+      }
+      .forget:hover{
+        color: red;
+      }
+      @media screen and (width < 1150px) {
+        .eye-icon{
+          right: 16em;
+          /* transform: translateY(-47px); */
+
+        }
+      }
+      @media screen and (width < 969px) {
+        .eye-icon{
+          right: 14em;
+          /* transform: translateY(-47px); */
+
+        }
+      }
+      @media screen and (width < 769px) {
+        .eye-icon{
+          right: 12em;
+          /* transform: translateY(-47px); */
+
+        }
+      }
+      @media screen and (width < 680px) {
+        .eye-icon{
+          right: 10em;
+          /* transform: translateY(-47px); */
+
+        }
+      }
+      @media screen and (width < 580px) {
+        .eye-icon{
+          right: 9em;
+          /* transform: translateY(-47px); */
+
+        }
+      }
+      @media screen and (width < 480px) {
+        .eye-icon{
+          right: 7em;
+          /* transform: translateY(-47px); */
+
+        }
       }
     </style>
     <h1 class="text-center">Welcome to firebase</h1>
@@ -145,6 +200,9 @@
         class="form-control mb-3"
         placeholder="Password"
       /><span class="eye-icon" onclick="togglePasswordVisibility()">👁️</span>
+      <div>
+        <p onclick="forgetPassword()" class="forget">Forget Password?</p>
+      </div>
       <div class="col-8 mx-auto">
         <button
           onclick="signInAccount()"
@@ -177,6 +235,7 @@
         signInWithEmailAndPassword,
         GoogleAuthProvider,
         signInWithPopup,
+        sendPasswordResetEmail
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
@@ -248,6 +307,23 @@
             password
           );
           console.log(userCredential);
+        } catch (err) {
+          document.getElementById("signInMessage").innerHTML = `
+          <div class="alert alert-danger" id="message">${err.message}</div>`;
+          console.log(err.message);
+        }
+      };
+      window.forgetPassword = async () => {
+        try {
+          const email = document.getElementById("signInEmail").value;
+           await sendPasswordResetEmail(
+            auth,
+            email
+          );
+          //console.log(userCredential);
+          document.getElementById("signInMessage").innerHTML = `
+          <div class="alert alert-success" id="message">Reset Email Sent Successfully</div>`;
+
         } catch (err) {
           document.getElementById("signInMessage").innerHTML = `
           <div class="alert alert-danger" id="message">${err.message}</div>`;
