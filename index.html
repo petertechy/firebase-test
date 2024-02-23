@@ -25,7 +25,40 @@
       }
     </style>
     <h1 class="text-center">Welcome to firebase</h1>
-
+    <div class="my-5 p-4 mx-auto col-9 bg-success rounded-3">
+      <img id="image" alt="" />
+      <label for="" class="form-label">First Name</label>
+      <input
+        id="name"
+        type="text"
+        class="form-control mb-3"
+        placeholder="Name"
+      />
+      <label for="" class="form-label">File</label>
+      <input
+        id="file"
+        type="file"
+        class="form-control mb-3"
+        placeholder="file"
+        accept="image/jpeg"
+      />
+      <div
+        class="progress"
+        role="progressbar"
+        aria-label="Basic example"
+        aria-valuenow="50"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div id="progress" class="progress-bar bg-info" style="width: 0"></div>
+      </div>
+      <button
+        onclick="uploadFile()"
+        class="btn btn-danger mt-2 fw-bold form-control"
+      >
+        Upload
+      </button>
+    </div>
     <div
       class="col-7 mx-auto border p-3 bg-info bg-opacity-25 shawdom-sm mt-3 rounded"
     >
@@ -47,12 +80,7 @@
         placeholder="Last name"
       />
       <label for="" class="form-label">Age</label>
-      <input
-        id="age"
-        type="text"
-        class="form-control mb-3"
-        placeholder="Age"
-      />
+      <input id="age" type="text" class="form-control mb-3" placeholder="Age" />
       <label for="" class="form-label">Gender</label>
       <input
         id="gender"
@@ -131,6 +159,13 @@
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        uploadBytesResumable,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+      import {
         getDatabase,
         ref,
         set,
@@ -161,18 +196,20 @@
       const auth = getAuth(app);
       const provider = new GoogleAuthProvider();
       const database = getDatabase(app);
+      const storage = getStorage(app);
+
       let index;
-      let userRef = ref(database, "userData")
-      onValue(userRef, (snapshot)=>{
-        console.log("On value run when there is change in the database")
-        let data = snapshot.val()
-        console.log(data)
-        if(data){
-          index = data.length
-        }else{
-          index =0
+      let userRef = ref(database, "userData");
+      onValue(userRef, (snapshot) => {
+        console.log("On value run when there is change in the database");
+        let data = snapshot.val();
+        console.log(data);
+        if (data) {
+          index = data.length;
+        } else {
+          index = 0;
         }
-      })
+      });
 
       // console.log("I ran");
 
@@ -247,9 +284,37 @@
         let age = document.getElementById("age").value;
         let gender = document.getElementById("gender").value;
         let userObject = { firstName, lastName, email, age, gender };
-        console.log(userObject);
+        console.log({userObject, index});
         let reference = ref(database, "userData/" + index);
         set(reference, userObject);
+      };
+
+      window.uploadFile = async () => {
+        const name = document.getElementById("name").value;
+        const file = document.getElementById("file").files[0];
+        let fileRef = storageRef(storage, "photos/" + name);
+        // uploadBytes(fileRef, file).then(()=>{
+        //   alert("File has been uploaded")
+        // })
+        // console.log({ name, file });
+
+        let upload = uploadBytesResumable(fileRef, file);
+
+        upload.on("change", (bytes) => {
+          let percentage = (bytes.bytesTransferred / bytes.totalBytes) * 100;
+
+          document.getElementById("progress").style.width = percentage + "%";
+
+          if (percentage == 100) {
+            setTimeout(async () => {
+              let url = await getDownloadURL(fileRef);
+              document.getElementById("image").setAttribute("src", url);
+              document.getElementById("image").setAttribute("width", "100%");
+              console.log(url);
+            }, 2000);
+          }
+        });
+        upload.on("complete");
       };
     </script>
   </body>
